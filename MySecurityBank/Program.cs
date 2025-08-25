@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation; // Added for AddRazorRuntimeCompilation
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using MySecurityBank.Models;
+using MySecurityBank.Services;
 using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,12 +28,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
     });
 
+// Anti-forgery
 builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.SuppressXFrameOptionsHeader = true; // We'll set framing policy globally
 });
+
+// Add custom services
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+builder.Services.AddScoped<ISwiftValidationService, SwiftValidationService>();
+builder.Services.AddScoped<IAuditingService, AuditingService>();
 
 var app = builder.Build();
 
@@ -46,8 +53,15 @@ app.Use(async (context, next) =>
     // XSS protection and MIME sniffing
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
-    // Basic CSP: allow only self for scripts/styles; allow inline hashes for antiforgery token script emitted by TagHelpers
-    var csp = "default-src 'self'; script-src 'self' https://code.jquery.com https://cdnjs.cloudflare.com; style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
+    // Enhanced CSP: allow Browser Link, Hot Reload, and optional unsafe-eval for dev tools
+    var csp = "default-src 'self'; " +
+              "script-src 'self' 'unsafe-eval' https://code.jquery.com https://cdnjs.cloudflare.com; " +
+              "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+              "img-src 'self' data:; " +
+              "connect-src 'self' ws: wss: http://localhost:61082 https://localhost:44304; " +
+              "frame-ancestors 'none'; " +
+              "base-uri 'self'; " +
+              "form-action 'self'";
     context.Response.Headers["Content-Security-Policy"] = csp;
 
     await next();

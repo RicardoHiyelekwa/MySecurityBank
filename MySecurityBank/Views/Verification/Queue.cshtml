@@ -1,0 +1,43 @@
+﻿@model List<MySecurityBank.Models.MySecureBank.Models.Transaction>
+@{
+    ViewData["Title"] = "Verification Queue";
+}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Verification Queue</h2>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SWIFT</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attachment</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            @foreach (var tx in Model)
+            {
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">@tx.Id</td>
+                    <td class="px-6 py-4 whitespace-nowrap">@tx.Amount</td>
+                    <td class="px-6 py-4 whitespace-nowrap">@tx.Currency</td>
+                    <td class="px-6 py-4 whitespace-nowrap">@tx.SwiftCode</td>
+                    <td class="px-6 py-4 whitespace-nowrap"><a href="@tx.AttachmentUrl" target="_blank">View</a></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <form asp-action="Approve" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@tx.Id" />
+                            <button type="submit" class="bg-green-600 text-white py-1 px-2 rounded-md hover:bg-green-700">Approve</button>
+                        </form>
+                        <form asp-action="Reject" method="post" class="mt-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@tx.Id" />
+                            <button type="submit" class="bg-red-600 text-white py-1 px-2 rounded-md hover:bg-red-700">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
