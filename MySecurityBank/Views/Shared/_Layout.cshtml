@@ -1,27 +1,34 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MySecureBank</title>
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>MySecureBank</h1>
-            <nav>
-                <a asp-controller="Home" asp-action="Index">Home</a>
-                <a asp-controller="Account" asp-action="Register">Register</a>
-                <a asp-controller="Account" asp-action="Login">Login</a>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">MySecureBank</h1>
+            <nav class="space-x-4">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-blue-200">Home</a>
+                <a asp-controller="Account" asp-action="Register" class="hover:text-blue-200">Register</a>
+                <a asp-controller="Account" asp-action="Login" class="hover:text-blue-200">Login</a>
             </nav>
         </div>
     </header>
-    <main class="container">
+    <main class="container mx-auto px-4 py-8">
         @RenderBody()
     </main>
-    <footer class="container">© @DateTime.UtcNow.Year MySecureBank</footer>
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <div class="container mx-auto px-4">
+            &copy; @DateTime.UtcNow.Year MySecureBank
+        </div>
+    </footer>
+    <script asp-append-version="true" src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script asp-append-version="true" src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script asp-append-version="true" src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>
